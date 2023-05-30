@@ -13,9 +13,11 @@
 #    License can be found in < https://github.com/1Danish-00/CompressorBot/blob/main/License> .
 
 from .config import *
+from .stream_manager import StreamManager
 
 COUNT = []
 OK = {}
+STREAM = StreamManager(HOST)
 
 uptime = dt.now()
 os.system("wget https://telegra.ph/file/75ee20ec8d8c8bba84f02.jpg -O thumb.jpg")

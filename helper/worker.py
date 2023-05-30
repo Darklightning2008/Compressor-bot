@@ -16,6 +16,7 @@
 from .funcn import *
 from .FastTelethon import download_file, upload_file
 
+
 async def screenshot(e):
     await e.edit("`Generating Screenshots...`")
     COUNT.append(e.chat_id)
@@ -58,7 +59,7 @@ async def stats(e):
         wh = decode(wah)
         out, dl, thum, dtime = wh.split(";")
         ot = hbs(int(Path(out).stat().st_size))
-        ov = hbs(int(Path(dl).stat().st_size))
+        ov = hbs((await STREAM.get_filesize_from_link(dl)))
         ans = f"Downloaded:\n{ov}\n\nCompressing:\n{ot}"
         await e.answer(ans, cache_time=0, alert=True)
     except BaseException:
@@ -89,7 +90,6 @@ async def encc(e):
             if er:
                 await e.edit(str(er) + "\n\n**ERROR** Contact @danish_00")
                 COUNT.remove(e.chat_id)
-                os.remove(dl)
                 return os.remove(out)
         except BaseException:
             pass
@@ -112,7 +112,7 @@ async def encc(e):
             force_document=True,
             thumb=thum)
         await nnn.delete()
-        org = int(Path(dl).stat().st_size)
+        org = await STREAM.get_filesize_from_link(dl)
         com = int(Path(out).stat().st_size)
         pe = 100 - ((com / org) * 100)
         per = str(f"{pe:.2f}") + "%"
@@ -129,7 +129,6 @@ async def encc(e):
         await ds.forward_to(LOG)
         await dk.forward_to(LOG)
         COUNT.remove(e.chat_id)
-        os.remove(dl)
         os.remove(out)
     except Exception as er:
         LOGS.info(er)
@@ -159,7 +158,6 @@ async def sample(e):
         if er:
             await e.edit(str(er) + "\n\n**ERROR** Contact @danish_00")
             COUNT.remove(e.chat_id)
-            os.remove(dl)
             os.remove(out)
             return
     except BaseException:
@@ -240,9 +238,6 @@ async def encod(event):
         await event.client.send_message(
             LOG, f"{len(COUNT)} Downloading Started for user - {name}"
         )
-        dir = f"downloads/{user.id}/"
-        if not os.path.isdir(dir):
-            os.mkdir(dir)
         try:
             if hasattr(event.media, "document"):
                 file = event.media.document
@@ -252,36 +247,12 @@ async def encod(event):
                     filename = (
                             "video_" + dt.now().isoformat("_", "seconds") + ".mp4"
                     )
-                dl = dir + filename
-                with open(dl, "wb") as f:
-                     ok = await download_file(
-                        client=event.client,
-                        location=file,
-                        out=f,
-                        progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                            progress(
-                                d,
-                                t,
-                                xxx,
-                                ttt,
-                                "Downloading",
-                            )
-                        ),
-                    )
-            else:
-                dl = await event.client.download_media(
-                    event.media,
-                    dir,
-                    progress_callback=lambda d, t: asyncio.get_event_loop().create_task(
-                        progress(d, t, xxx, ttt, "Downloading")
-                    ),
-                )
+                dl = await STREAM.generate_stream_link(event)
         except Exception as er:
             LOGS.info(er)
             COUNT.remove(user.id)
-            return os.remove(dl)
         es = dt.now()
-        kk = dl.split("/")[-1]
+        kk = filename
         aa = kk.split(".")[-1]
         rr = f"encode/{user.id}"
         if not os.path.isdir(rr):
@@ -335,7 +306,6 @@ async def customenc(e, key):
         if er:
             await e.edit(str(er) + "\n\n**ERROR** Contact @danish_00")
             COUNT.remove(e.chat_id)
-            os.remove(dl)
             return os.remove(out)
     except BaseException:
         pass
@@ -363,9 +333,8 @@ async def customenc(e, key):
     except Exception as er:
         LOGS.info(er)
         COUNT.remove(e.chat_id)
-        os.remove(dl)
         return os.remove(out)
-    org = int(Path(dl).stat().st_size)
+    org = await STREAM.get_filesize_from_link(dl)
     com = int(Path(out).stat().st_size)
     pe = 100 - ((com / org) * 100)
     per = str(f"{pe:.2f}") + "%"
@@ -383,5 +352,4 @@ async def customenc(e, key):
     await dk.forward_to(LOG)
     await nnn.delete()
     COUNT.remove(e.chat_id)
-    os.remove(dl)
     os.remove(out)
