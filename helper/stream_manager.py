@@ -9,7 +9,7 @@ from functools import partial, wraps
 class StreamManager:
     def __init__(self, host):
         self.host = host
-        self.client = aiohttp.ClientSession
+        self.client = aiohttp.ClientSession() 
 
     @staticmethod
     def run_async(function):
