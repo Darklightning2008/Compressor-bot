@@ -88,7 +88,7 @@ async def encc(e):
         er = stderr.decode()
         try:
             if er:
-                await e.edit(str(er) + "\n\n**ERROR** Contact @danish_00")
+                await e.edit(str(er) + "\n\n**ERROR** Contact @speedy208")
                 COUNT.remove(e.chat_id)
                 return os.remove(out)
         except BaseException:
